@@ -6,12 +6,6 @@
 inline struct Hive
 {
 	inline static constexpr struct {
-		inline static constexpr int c_segment = 0;
-		inline static constexpr int c_token = 1;
-		inline static constexpr int c_both = 2;
-	} c_split_mode;
-
-	inline static constexpr struct {
 		inline static constexpr int c_4 = 0;
 		inline static constexpr int c_8 = 1;
 		inline static constexpr int c_12 = 2;
@@ -56,11 +50,13 @@ inline struct Hive
 	// AviUtl用の設定です。
 	//
 	std::filesystem::path json_file_path;
-	int split_mode = c_split_mode.c_both;
-	int layer_offset = 0;
+	BOOL create_token_item = TRUE;
+	BOOL create_segment_item = TRUE;
+	BOOL create_psdtoolkit_item = TRUE;
+	int token_layer_offset = 1;
+	int segment_layer_offset = 1;
 	std::wstring start_margin = L"0.0";
 	std::wstring end_margin = L"0.0";
-	std::filesystem::path template_file_path = L"未実装";
 
 	//
 	// PSDToolKit用の設定です。

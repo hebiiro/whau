@@ -67,8 +67,11 @@ public:
 	// AviUtl用の設定です。
 	//
 	CMFCEditBrowseCtrl json_file_path;
-	CComboBox split_mode;
-	CEdit layer_offset;
+	CButton create_token_item;
+	CButton create_segment_item;
+	CButton create_psdtoolkit_item;
+	CEdit token_layer_offset;
+	CEdit segment_layer_offset;
 	CEdit start_margin;
 	CEdit end_margin;
 
@@ -199,8 +202,11 @@ public:
 		from_ui(hive.exo.audio_ch, exo.audio_ch);
 
 		from_ui(hive.json_file_path, json_file_path);
-		from_ui(hive.split_mode, split_mode);
-		from_ui(hive.layer_offset, layer_offset);
+		from_ui(hive.create_token_item, create_token_item);
+		from_ui(hive.create_segment_item, create_segment_item);
+		from_ui(hive.create_psdtoolkit_item, create_psdtoolkit_item);
+		from_ui(hive.token_layer_offset, token_layer_offset);
+		from_ui(hive.segment_layer_offset, segment_layer_offset);
 		from_ui(hive.start_margin, start_margin);
 		from_ui(hive.end_margin, end_margin);
 
@@ -243,8 +249,11 @@ public:
 		to_ui(hive.exo.audio_ch, exo.audio_ch);
 
 		to_ui(hive.json_file_path, json_file_path);
-		to_ui(hive.split_mode, split_mode);
-		to_ui(hive.layer_offset, layer_offset);
+		to_ui(hive.create_token_item, create_token_item);
+		to_ui(hive.create_segment_item, create_segment_item);
+		to_ui(hive.create_psdtoolkit_item, create_psdtoolkit_item);
+		to_ui(hive.token_layer_offset, token_layer_offset);
+		to_ui(hive.segment_layer_offset, segment_layer_offset);
 		to_ui(hive.start_margin, start_margin);
 		to_ui(hive.end_margin, end_margin);
 
@@ -337,8 +346,11 @@ public:
 		DDX_Control(dx, IDC_EXO_AUDIO_CHANNEL, exo.audio_ch);
 
 		DDX_Control(dx, IDC_JSON_FILE_PATH, json_file_path);
-		DDX_Control(dx, IDC_SPLIT_MODE, split_mode);
-		DDX_Control(dx, IDC_LAYER_OFFSET, layer_offset);
+		DDX_Control(dx, IDC_CREATE_TOKEN_ITEM, create_token_item);
+		DDX_Control(dx, IDC_CREATE_SEGMENT_ITEM, create_segment_item);
+		DDX_Control(dx, IDC_CREATE_PSDTOOLKIT_ITEM, create_psdtoolkit_item);
+		DDX_Control(dx, IDC_TOKEN_LAYER_OFFSET, token_layer_offset);
+		DDX_Control(dx, IDC_SEGMENT_LAYER_OFFSET, segment_layer_offset);
 		DDX_Control(dx, IDC_START_MARGIN, start_margin);
 		DDX_Control(dx, IDC_END_MARGIN, end_margin);
 
@@ -473,6 +485,10 @@ public:
 			}
 		// エディットボックスのコマンドです。
 		case IDC_WAV_FOLDER_PATH:
+		case IDC_TOKEN_LAYER_OFFSET:
+		case IDC_SEGMENT_LAYER_OFFSET:
+		case IDC_START_MARGIN:
+		case IDC_END_MARGIN:
 			{
 				if (code == EN_CHANGE)
 				{
@@ -483,6 +499,9 @@ public:
 				break;
 			}
 		// ボタンのコマンドです。
+		case IDC_CREATE_SEGMENT_ITEM:
+		case IDC_CREATE_TOKEN_ITEM:
+		case IDC_CREATE_PSDTOOLKIT_ITEM:
 		case IDC_USE_LIP_SYNC:
 		case IDC_USE_SLIDER:
 		case IDC_USE_SUBTITLE:
@@ -503,22 +522,13 @@ public:
 				return app->transcribe();
 			}
 		// ボタンのコマンドです。
-		case IDC_OUTPUT_FOR_AVIUTL:
+		case IDC_OUTPUT_EXO_FILE:
 			{
 				// UIの値でコンフィグを更新します。
 				update_config();
 
 				// AviUtl用のexoファイルを出力します。
-				return app->output_for_aviutl();
-			}
-		// ボタンのコマンドです。
-		case IDC_OUTPUT_FOR_PSDTOOLKIT:
-			{
-				// UIの値でコンフィグを更新します。
-				update_config();
-
-				// PSDToolKit用のexoファイルを出力します。
-				return app->output_for_psdtoolkit();
+				return app->output_exo_file();
 			}
 		// ボタンのコマンドです。
 		case IDOK:
@@ -569,8 +579,7 @@ public:
 	{
 		switch (wnd->GetDlgCtrlID())
 		{
-		case IDC_OUTPUT_FOR_AVIUTL:
-		case IDC_OUTPUT_FOR_PSDTOOLKIT:
+		case IDC_OUTPUT_EXO_FILE:
 			{
 				constexpr struct {
 					const int c_choose_file_on_output = 1;

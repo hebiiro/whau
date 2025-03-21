@@ -63,11 +63,13 @@ public:
 		read_int(L"exo", L"audio_ch", hive.exo.audio_ch);
 
 		read_path(L"AviUtl", L"json_file_path", hive.json_file_path);
-		read_int(L"AviUtl", L"split_mode", hive.split_mode);
-		read_int(L"AviUtl", L"layer_offset", hive.layer_offset);
+		read_int(L"AviUtl", L"create_token_item", hive.create_token_item);
+		read_int(L"AviUtl", L"create_segment_item", hive.create_segment_item);
+		read_int(L"AviUtl", L"create_psdtoolkit_item", hive.create_psdtoolkit_item);
+		read_int(L"AviUtl", L"token_layer_offset", hive.token_layer_offset);
+		read_int(L"AviUtl", L"segment_layer_offset", hive.segment_layer_offset);
 		read_string(L"AviUtl", L"start_margin", hive.start_margin);
 		read_string(L"AviUtl", L"end_margin", hive.end_margin);
-		read_path(L"AviUtl", L"template_file_path", hive.template_file_path);
 
 		read_path(L"PSDToolKit", L"wav_folder_path", hive.wav_folder_path);
 		read_int(L"PSDToolKit", L"use_lip_sync", hive.use_lip_sync);
@@ -121,11 +123,13 @@ public:
 		write_int(L"exo", L"audio_ch", hive.exo.audio_ch);
 
 		write_path(L"AviUtl", L"json_file_path", hive.json_file_path);
-		write_int(L"AviUtl", L"split_mode", hive.split_mode);
-		write_int(L"AviUtl", L"layer_offset", hive.layer_offset);
+		write_int(L"AviUtl", L"create_token_item", hive.create_token_item);
+		write_int(L"AviUtl", L"create_segment_item", hive.create_segment_item);
+		write_int(L"AviUtl", L"create_psdtoolkit_item", hive.create_psdtoolkit_item);
+		write_int(L"AviUtl", L"token_layer_offset", hive.token_layer_offset);
+		write_int(L"AviUtl", L"segment_layer_offset", hive.segment_layer_offset);
 		write_string(L"AviUtl", L"start_margin", hive.start_margin);
 		write_string(L"AviUtl", L"end_margin", hive.end_margin);
-		write_path(L"AviUtl", L"template_file_path", hive.template_file_path);
 
 		write_path(L"PSDToolKit", L"wav_folder_path", hive.wav_folder_path);
 		write_int(L"PSDToolKit", L"use_lip_sync", hive.use_lip_sync);
@@ -177,7 +181,7 @@ public:
 	//
 	// exoファイルを出力します。
 	//
-	BOOL output_exo_file(BOOL as_psdtoolkit)
+	virtual BOOL output_exo_file() override
 	{
 		try
 		{
@@ -312,13 +316,14 @@ public:
 			//
 			// exoファイルのストリームにテキストアイテムを書き込みます。
 			//
-			const auto write_text_item = [&](size_t i, int layer,
+			const auto write_text_item = [&](size_t i, int layer, int group,
 				int frame_begin, int frame_end, const std::string& text)
 			{
 				write_section(std::format("{}", i));
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("camera", "0");
 
@@ -366,7 +371,7 @@ public:
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
-				write_property("group", std::format("{}", group));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("audio", "1");
 
@@ -395,7 +400,7 @@ public:
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
-				write_property("group", std::format("{}", group));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("camera", "0");
 
@@ -433,7 +438,7 @@ public:
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
-				write_property("group", std::format("{}", group));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("camera", "0");
 
@@ -488,6 +493,7 @@ public:
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("camera", "0");
 
@@ -540,6 +546,7 @@ public:
 				write_property("start", std::format("{}", frame_begin + 1));
 				write_property("end", std::format("{}", frame_end + 1));
 				write_property("layer", std::format("{}", layer + 1));
+				if (group) write_property("group", std::format("{}", group));
 				write_property("overlay", "1");
 				write_property("camera", "0");
 
@@ -624,64 +631,65 @@ public:
 			write_property("audio_ch", std::format("{}", exedit.audio_ch));
 
 			// 最初のレイヤーのインデックスです。常に0です。
-			int layer_begin = 0;
+			auto layer_begin = 0;
 
 			// 重複するアイテムをずらす量です。
-			int layer_offset = hive.layer_offset;
+			auto layer_offset = 0;
+
+			// グループIDです。使用される度にインクリメントされます。
+			auto group_id = 1;
 
 			// トークン用アイテムを作成する場合は
-			if (hive.split_mode == hive.c_split_mode.c_token ||
-				hive.split_mode == hive.c_split_mode.c_both)
+			if (hive.create_token_item)
 			{
-				// テキストアイテムの分だけずらす量を増やします。
-				layer_offset += 1;
+				// テキストアイテムとオフセットの分だけずらす量を増やします。
+				layer_offset += 1 + hive.token_layer_offset;
 			}
 
-			// セグメント音声ファイルを格納するフォルダのパスを取得します。
+			// セグメント用アイテムを作成する場合は
+			if (hive.create_segment_item)
+			{
+				// テキストアイテムとオフセットの分だけずらす量を増やします。
+				layer_offset += 1 + hive.segment_layer_offset;
+			}
+
+			// WAVファイルを格納するフォルダのパスを取得します。
 			// 相対パスの可能性があるので絶対パスに変換します。
 			auto wav_folder_path = std::filesystem::absolute(hive.wav_folder_path);
 
-			// セグメント用アイテムを作成する場合は
-			if (hive.split_mode == hive.c_split_mode.c_segment ||
-				hive.split_mode == hive.c_split_mode.c_both)
+			// PSDToolKit用アイテムを作成する場合は
+			if (hive.create_psdtoolkit_item)
 			{
-				if (as_psdtoolkit)
+				// WAVファイルを格納するフォルダを作成します。
+				std::filesystem::create_directories(wav_folder_path);
+
+				// 既存のWAVファイルを削除するために
+				// WAVファイルを格納するフォルダを走査します。
+				for (auto& entry : std::filesystem::directory_iterator(wav_folder_path))
 				{
-					// セグメント音声ファイルを格納するフォルダを作成します。
-					std::filesystem::create_directories(wav_folder_path);
+					// WAVファイルの場合は削除します。
+					if (entry.path().extension() == L".wav")
+						std::filesystem::remove(entry.path());
+				}
 
-					// セグメント音声ファイルを格納するフォルダを走査します。
-					for (auto& entry : std::filesystem::directory_iterator(wav_folder_path))
-					{
-						// wavファイルの場合は削除します。
-						if (entry.path().extension() == L".wav")
-							std::filesystem::remove(entry.path());
-					}
+				// 音声ファイルアイテムの分だけずらす量を増やします。
+				layer_offset += 1;
 
-					// 音声ファイルアイテムの分だけずらす量を増やします。
+				if (hive.all_in_one)
+				{
+					// 一括アイテムの分だけずらす量を増やします。
 					layer_offset += 1;
-
-					if (hive.all_in_one)
-					{
-						// 一括アイテムの分だけずらす量を増やします。
-						layer_offset += 1;
-					}
-					else
-					{
-						// 口パク準備アイテムの分だけずらす量を増やします。
-						if (hive.use_lip_sync) layer_offset += 1;
-
-						// 多目的スライダーアイテムの分だけずらす量を増やします。
-						if (hive.use_slider) layer_offset += 1;
-
-						// 字幕準備アイテムの分だけずらす量を増やします。
-						if (hive.use_subtitle) layer_offset += 1;
-					}
 				}
 				else
 				{
-					// テキストアイテムの分だけずらす量を増やします。
-					layer_offset += 1;
+					// 口パク準備アイテムの分だけずらす量を増やします。
+					if (hive.use_lip_sync) layer_offset += 1;
+
+					// 多目的スライダーアイテムの分だけずらす量を増やします。
+					if (hive.use_slider) layer_offset += 1;
+
+					// 字幕準備アイテムの分だけずらす量を増やします。
+					if (hive.use_subtitle) layer_offset += 1;
 				}
 			}
 
@@ -840,80 +848,18 @@ public:
 				// アイテムを配置可能なレイヤーインデックスを取得します。
 				auto layer_index = get_layer_index(item);
 
+				// [トークン][...]
+				// [セグメント][...]
 				// [音声ファイル]
 				// [口パク準備]
 				// [多目的スライダー]
 				// [字幕準備(セグメント)]
-				// [トークン][...]
-
-				// セグメント用アイテムを作成する場合は
-				if (hive.split_mode == hive.c_split_mode.c_segment ||
-					hive.split_mode == hive.c_split_mode.c_both)
-				{
-					if (as_psdtoolkit)
-					{
-						// アイテムのグループ番号を作成します。
-						auto group = (int)i + 1;
-
-						// セグメント音声ファイルのステムの最大長です。
-						constexpr auto c_max_stem_length = 16;
-
-						// セグメント音声ファイルのステムを作成します。
-						auto audio_file_stem = cp_to_wide(text, CP_UTF8);
-						if (audio_file_stem.length() >= c_max_stem_length)
-						{
-							audio_file_stem.resize(c_max_stem_length);
-							audio_file_stem.back() = L'…';
-						}
-
-						// セグメント音声ファイルのパスを作成します。
-						auto wav_file_path = wav_folder_path / std::format(L"{:03d}_{}.wav", i + 1, audio_file_stem);
-
-						// セグメント音声ファイルを抽出するコマンドを作成します。
-						auto command = std::format(
-							LR"("{}" -i "{}" -ss {:.2f} -t {:.2f} -ar 16000 -ac 1 -c:a pcm_s16le -y "{}")",
-							hive.ffmpeg_path.wstring(),
-							std::filesystem::absolute(hive.audio_file_path).wstring(),
-							start,
-							end - start,
-							wav_file_path.wstring());
-
-						// サブプロセスを起動します。完了するまで待機します。
-						SubProcess(wav_folder_path.wstring(), command).wait();
-
-						// セグメントを音声ファイルアイテムとして書き込みます。
-						write_audio_file_item(item_index++, layer_index++, group, wav_file_path, item.frame_begin, item.frame_end, text);
-
-						if (hive.all_in_one)
-						{
-							write_all_in_one_item(item_index++, layer_index++, group, wav_file_path, item.frame_begin, item.frame_end, text);
-						}
-						else
-						{
-							// セグメントを口パク準備アイテムとして書き込みます。
-							if (hive.use_lip_sync)
-								write_lip_sync_item(item_index++, layer_index++, group, wav_file_path, item.frame_begin, item.frame_end, text);
-
-							// セグメントを多目的スライダーアイテムとして書き込みます。
-							if (hive.use_slider)
-								write_slider_item(item_index++, layer_index++, group, wav_file_path, item.frame_begin, item.frame_end, text);
-
-							// セグメントを字幕準備アイテムとして書き込みます。
-							if (hive.use_subtitle)
-								write_subtitle_item(item_index++, layer_index++, group, wav_file_path, item.frame_begin, item.frame_end, text);
-						}
-					}
-					else
-					{
-						// セグメントをテキストアイテムとして書き込みます。
-						write_text_item(item_index++, layer_index++, item.frame_begin, item.frame_end, text);
-					}
-				}
 
 				// トークン用アイテムを作成する場合は
-				if (hive.split_mode == hive.c_split_mode.c_token ||
-					hive.split_mode == hive.c_split_mode.c_both)
+				if (hive.create_token_item)
 				{
+					// トークンが存在しない場合などに例外が発生する可能性があるので
+					// 例外処理を行います。
 					try
 					{
 						// トークン配列の要素を取得します。
@@ -939,12 +885,83 @@ public:
 							Item item { to_frame(start), to_frame(end) - 1 };
 
 							// トークンをテキストアイテムとして書き込みます。
-							write_text_item(item_index++, layer_index, item.frame_begin, item.frame_end, word);
+							write_text_item(item_index++, layer_index, group_id, item.frame_begin, item.frame_end, word);
 						}
 					}
 					catch (...)
 					{
 					}
+
+					// トークンアイテムを配置したのでレイヤーインデックスを増やします。
+					layer_index += 1 + hive.token_layer_offset;
+
+					// 使用済みのグループIDをインクリメントします。
+					group_id++;
+				}
+
+				// セグメント用アイテムを作成する場合は
+				if (hive.create_segment_item)
+				{
+					// セグメントをテキストアイテムとして書き込みます。
+					write_text_item(item_index++, layer_index, 0, item.frame_begin, item.frame_end, text);
+
+					// セグメントアイテムを配置したのでレイヤーインデックスを増やします。
+					layer_index += 1 + hive.segment_layer_offset;
+				}
+
+				// PSDToolKit用アイテムを作成する場合は
+				if (hive.create_psdtoolkit_item)
+				{
+					// WAVファイルのステムの最大長です。
+					constexpr auto c_max_stem_length = 16;
+
+					// WAVファイルのステムを作成します。
+					auto audio_file_stem = cp_to_wide(text, CP_UTF8);
+					if (audio_file_stem.length() >= c_max_stem_length)
+					{
+						audio_file_stem.resize(c_max_stem_length);
+						audio_file_stem.back() = L'…';
+					}
+
+					// WAVファイルのパスを作成します。
+					auto wav_file_path = wav_folder_path / std::format(L"{:03d}_{}.wav", i + 1, audio_file_stem);
+
+					// WAVファイルを抽出するコマンドを作成します。
+					auto command = std::format(
+						LR"("{}" -i "{}" -ss {:.2f} -t {:.2f} -ar 16000 -ac 1 -c:a pcm_s16le -y "{}")",
+						hive.ffmpeg_path.wstring(),
+						std::filesystem::absolute(hive.audio_file_path).wstring(),
+						start,
+						end - start,
+						wav_file_path.wstring());
+
+					// サブプロセスを起動します。完了するまで待機します。
+					SubProcess(wav_folder_path.wstring(), command).wait();
+
+					// セグメントを音声ファイルアイテムとして書き込みます。
+					write_audio_file_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
+
+					if (hive.all_in_one)
+					{
+						write_all_in_one_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
+					}
+					else
+					{
+						// セグメントを口パク準備アイテムとして書き込みます。
+						if (hive.use_lip_sync)
+							write_lip_sync_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
+
+						// セグメントを多目的スライダーアイテムとして書き込みます。
+						if (hive.use_slider)
+							write_slider_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
+
+						// セグメントを字幕準備アイテムとして書き込みます。
+						if (hive.use_subtitle)
+							write_subtitle_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
+					}
+
+					// 使用済みのグループIDをインクリメントします。
+					group_id++;
 				}
 			}
 
@@ -963,22 +980,6 @@ public:
 		}
 
 		return FALSE;
-	}
-
-	//
-	// AviUtl用のexoファイルを出力します。
-	//
-	virtual BOOL output_for_aviutl() override
-	{
-		return output_exo_file(FALSE);
-	}
-
-	//
-	// PSDToolKit用のexoファイルを出力します。
-	//
-	virtual BOOL output_for_psdtoolkit() override
-	{
-		return output_exo_file(TRUE);
 	}
 
 	//
