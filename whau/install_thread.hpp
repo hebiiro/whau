@@ -10,9 +10,6 @@ struct InstallThread : Hive::SubThread
 	//
 	UINT run()
 	{
-		// ヘルプのファイルパスです。
-		auto usage_path = std::filesystem::path(L"usage-faster-whisper-xxl.txt");
-
 		// コンソールを開きます。
 		Console console;
 
@@ -37,12 +34,21 @@ struct InstallThread : Hive::SubThread
 
 //		if (0)
 		{
+			// ヘルプファイルのパスです。
+			auto usage_path = std::filesystem::absolute(L"assets/docs/usage-faster-whisper-xxl.txt");
+
+			// ヘルプファイルを配置するフォルダを作成します。
+			std::filesystem::create_directories(usage_path.parent_path());
+
 			// ヘルプを作成します。完了するまで待機します。
 			SubProcess(hive.origin, std::format(LR"(cmd /c "{}" --help > {})" L"\n",
 				hive.whisper_path.wstring(), usage_path.wstring())).wait();
 
+			// ヘルプを作成したことをユーザーに通知します。
+			console.write(std::format(L"{}を作成しました" L"\n", usage_path.wstring()));
+
 			// ヘルプを表示します。
-			shell_execute(L"open", usage_path.c_str(), nullptr);
+//			shell_execute(L"open", usage_path.c_str(), nullptr);
 		}
 
 		// 導入の完了をユーザーに通知します。

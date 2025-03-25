@@ -39,20 +39,20 @@ public:
 			value = s;
 		};
 
-		hive.json_file_path = get_json_file_path();
-		hive.wav_folder_path = get_wav_folder_path();
+		hive.interim_folder_path = get_default_interim_folder_path();
+		hive.json_file_path = get_default_json_file_path();
+		hive.wav_folder_path = get_default_wav_folder_path();
 
 		read_path(L"Faster-Whisper", L"audio_file_path", hive.audio_file_path);
+		read_path(L"Faster-Whisper", L"interim_folder_path", hive.interim_folder_path);
 		read_string(L"Faster-Whisper", L"task", hive.task);
 		read_string(L"Faster-Whisper", L"language", hive.language);
+		read_string(L"Faster-Whisper", L"japanese_mode", hive.japanese_mode);
 		read_string(L"Faster-Whisper", L"model", hive.model);
 		read_string(L"Faster-Whisper", L"diarize", hive.diarize);
-		read_string(L"Faster-Whisper", L"vad_method", hive.vad_method);
 		read_string(L"Faster-Whisper", L"ff", hive.ff);
+		read_string(L"Faster-Whisper", L"vad_method", hive.vad_method);
 		read_string(L"Faster-Whisper", L"vad_speech_pad_ms", hive.vad_speech_pad_ms);
-
-		read_string(L"Faster-Whisper", L"japanese_mode", hive.japanese_mode);
-		read_string(L"Faster-Whisper", L"output_sub_folder_name", hive.output_sub_folder_name);
 		read_string(L"Faster-Whisper", L"additional_command", hive.additional_command);
 
 		read_int(L"exo", L"video_w", hive.exo.video_w);
@@ -73,12 +73,12 @@ public:
 
 		read_path(L"PSDToolKit", L"wav_folder_path", hive.wav_folder_path);
 		read_int(L"PSDToolKit", L"use_lip_sync", hive.use_lip_sync);
-		read_int(L"PSDToolKit", L"use_slider", hive.use_slider);
-		read_int(L"PSDToolKit", L"slider_count", hive.slider_count);
 		read_int(L"PSDToolKit", L"use_subtitle", hive.use_subtitle);
+		read_int(L"PSDToolKit", L"slider_count", hive.slider_count);
 		read_int(L"PSDToolKit", L"all_in_one", hive.all_in_one);
 
-		read_int(L"etc", L"choose_file_on_output", hive.choose_file_on_output);
+		read_int(L"etc", L"choose_folder_on_transcribe", hive.choose_folder_on_transcribe);
+		read_int(L"etc", L"choose_file_on_output_exo_file", hive.choose_file_on_output_exo_file);
 
 		return TRUE;
 	}
@@ -103,16 +103,15 @@ public:
 		};
 
 		write_path(L"Faster-Whisper", L"audio_file_path", hive.audio_file_path);
+		write_path(L"Faster-Whisper", L"interim_folder_path", hive.interim_folder_path);
 		write_string(L"Faster-Whisper", L"task", hive.task);
 		write_string(L"Faster-Whisper", L"language", hive.language);
+		write_string(L"Faster-Whisper", L"japanese_mode", hive.japanese_mode);
 		write_string(L"Faster-Whisper", L"model", hive.model);
 		write_string(L"Faster-Whisper", L"diarize", hive.diarize);
-		write_string(L"Faster-Whisper", L"vad_method", hive.vad_method);
 		write_string(L"Faster-Whisper", L"ff", hive.ff);
+		write_string(L"Faster-Whisper", L"vad_method", hive.vad_method);
 		write_string(L"Faster-Whisper", L"vad_speech_pad_ms", hive.vad_speech_pad_ms);
-
-		write_string(L"Faster-Whisper", L"japanese_mode", hive.japanese_mode);
-		write_string(L"Faster-Whisper", L"output_sub_folder_name", hive.output_sub_folder_name);
 		write_string(L"Faster-Whisper", L"additional_command", hive.additional_command);
 
 		write_int(L"exo", L"video_w", hive.exo.video_w);
@@ -133,28 +132,52 @@ public:
 
 		write_path(L"PSDToolKit", L"wav_folder_path", hive.wav_folder_path);
 		write_int(L"PSDToolKit", L"use_lip_sync", hive.use_lip_sync);
-		write_int(L"PSDToolKit", L"use_slider", hive.use_slider);
-		write_int(L"PSDToolKit", L"slider_count", hive.slider_count);
 		write_int(L"PSDToolKit", L"use_subtitle", hive.use_subtitle);
+		write_int(L"PSDToolKit", L"slider_count", hive.slider_count);
 		write_int(L"PSDToolKit", L"all_in_one", hive.all_in_one);
 
-		write_int(L"etc", L"choose_file_on_output", hive.choose_file_on_output);
+		write_int(L"etc", L"choose_folder_on_transcribe", hive.choose_folder_on_transcribe);
+		write_int(L"etc", L"choose_file_on_output_exo_file", hive.choose_file_on_output_exo_file);
 
 		return TRUE;
 	}
 
 	//
-	// jsonファイルのパスを返します。
+	// デフォルトの中間フォルダのパスを返します。
 	//
-	virtual std::filesystem::path get_json_file_path() override
+	virtual std::filesystem::path get_default_interim_folder_path() override
 	{
-		return transcriber.get_output_file_path(L".json");
+		auto interim_folder_path = hive.audio_file_path;
+		interim_folder_path.replace_extension(L"");
+		interim_folder_path /= L"whau";
+		return interim_folder_path;
 	}
 
 	//
-	// wavフォルダのパスを返します。
+	// デフォルトのjsonファイルのパスを返します。
 	//
-	virtual std::filesystem::path get_wav_folder_path() override
+	virtual std::filesystem::path get_default_json_file_path() override
+	{
+		auto json_file_path = hive.interim_folder_path;
+		json_file_path /= hive.audio_file_path.stem();
+		json_file_path.replace_extension(L".json");
+		return json_file_path;
+	}
+
+	//
+	// デフォルトのexoファイルのパスを返します。
+	//
+	virtual std::filesystem::path get_default_exo_file_path() override
+	{
+		auto exo_file_path = hive.json_file_path;
+		exo_file_path.replace_extension(L".exo");
+		return exo_file_path;
+	}
+
+	//
+	// デフォルトのwavフォルダのパスを返します。
+	//
+	virtual std::filesystem::path get_default_wav_folder_path() override
 	{
 		auto wav_folder_path = hive.audio_file_path;
 		wav_folder_path.replace_extension(L"");
@@ -192,14 +215,11 @@ public:
 			console.write(L"exoファイル出力を開始します" L"\n");
 
 			// exoファイルのパスを作成します。
-			auto exo_path = hive.audio_file_path;
-			exo_path.replace_extension(L".exo");
+			// 相対パスの可能性があるので絶対パスに変換します。
+			auto exo_path = std::filesystem::absolute(get_default_exo_file_path());
 
-			// exoファイルのパスをユーザーに通知します。
-			console.write(std::format(L"exo_path = {}" L"\n", exo_path.wstring()));
-
-			// 出力時に出力ファイルを選択する場合は
-			if (hive.choose_file_on_output)
+			// 出力時にexoファイルを選択する場合は
+			if (hive.choose_file_on_output_exo_file)
 			{
 				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
 				auto default_path = exo_path.wstring();
@@ -214,18 +234,22 @@ public:
 					_T("all files (*.*)|*.*||"), // すべてのファイル用のフィルタです。
 					&main_dialog); // オーナーウィンドウです。
 
-				// ファイルが選択された場合は
+				// ユーザーがファイルを選択した場合は
 				if (IDOK == dialog.DoModal())
 				{
 					// 選択されたファイルをexoファイルのパスにします。
 					exo_path = to_string(dialog.GetPathName());
 				}
+				// ユーザーがファイルを選択しなかった場合は
 				else
 				{
-					// ファイルが選択されなかった場合は失敗します。
+					// 処理を中止します。
 					return FALSE;
 				}
 			}
+
+			// exoファイルのパスをユーザーに通知します。
+			console.write(std::format(L"exo_path = {}" L"\n", exo_path.wstring()));
 
 			//
 			// プロジェクトのプロパティです。
@@ -270,7 +294,8 @@ public:
 			};
 
 			// jsonファイルのパスを取得します。
-			auto json_path = transcriber.get_output_file_path(L".json");
+			// 相対パスの可能性があるので絶対パスに変換します。
+			auto json_path = std::filesystem::absolute(hive.json_file_path);
 
 			// jsonファイルのストリームを開きます。
 			std::ifstream json_stream(json_path);
@@ -592,7 +617,7 @@ public:
 					write_property("param", std::format(R"(file="{}")", escape(audio_file_path.wstring())));
 				}
 
-				if (hive.use_slider)
+				if (hive.slider_count != hive.c_slider_count.c_0)
 				{
 					for (int j = 0; j < hive.slider_count + 1; j++)
 					{
@@ -653,21 +678,21 @@ public:
 				layer_offset += 1 + hive.segment_layer_offset;
 			}
 
-			// WAVファイルを格納するフォルダのパスを取得します。
+			// wavファイルを格納するフォルダのパスを取得します。
 			// 相対パスの可能性があるので絶対パスに変換します。
 			auto wav_folder_path = std::filesystem::absolute(hive.wav_folder_path);
 
 			// PSDToolKit用アイテムを作成する場合は
 			if (hive.create_psdtoolkit_item)
 			{
-				// WAVファイルを格納するフォルダを作成します。
+				// wavファイルを格納するフォルダを作成します。
 				std::filesystem::create_directories(wav_folder_path);
 
-				// 既存のWAVファイルを削除するために
-				// WAVファイルを格納するフォルダを走査します。
+				// 既存のwavファイルを削除するために
+				// wavファイルを格納するフォルダを走査します。
 				for (auto& entry : std::filesystem::directory_iterator(wav_folder_path))
 				{
-					// WAVファイルの場合は削除します。
+					// wavファイルの場合は削除します。
 					if (entry.path().extension() == L".wav")
 						std::filesystem::remove(entry.path());
 				}
@@ -686,7 +711,7 @@ public:
 					if (hive.use_lip_sync) layer_offset += 1;
 
 					// 多目的スライダーアイテムの分だけずらす量を増やします。
-					if (hive.use_slider) layer_offset += 1;
+					if (hive.slider_count != hive.c_slider_count.c_0) layer_offset += 1;
 
 					// 字幕準備アイテムの分だけずらす量を増やします。
 					if (hive.use_subtitle) layer_offset += 1;
@@ -912,10 +937,10 @@ public:
 				// PSDToolKit用アイテムを作成する場合は
 				if (hive.create_psdtoolkit_item)
 				{
-					// WAVファイルのステムの最大長です。
+					// wavファイルのステムの最大長です。
 					constexpr auto c_max_stem_length = 16;
 
-					// WAVファイルのステムを作成します。
+					// wavファイルのステムを作成します。
 					auto audio_file_stem = cp_to_wide(text, CP_UTF8);
 					if (audio_file_stem.length() >= c_max_stem_length)
 					{
@@ -923,10 +948,10 @@ public:
 						audio_file_stem.back() = L'…';
 					}
 
-					// WAVファイルのパスを作成します。
+					// wavファイルのパスを作成します。
 					auto wav_file_path = wav_folder_path / std::format(L"{:03d}_{}.wav", i + 1, audio_file_stem);
 
-					// WAVファイルを抽出するコマンドを作成します。
+					// wavファイルを抽出するコマンドを作成します。
 					auto command = std::format(
 						LR"("{}" -i "{}" -ss {:.2f} -t {:.2f} -ar 16000 -ac 1 -c:a pcm_s16le -y "{}")",
 						hive.ffmpeg_path.wstring(),
@@ -952,7 +977,7 @@ public:
 							write_lip_sync_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
 
 						// セグメントを多目的スライダーアイテムとして書き込みます。
-						if (hive.use_slider)
+						if (hive.slider_count != hive.c_slider_count.c_0)
 							write_slider_item(item_index++, layer_index++, group_id, wav_file_path, item.frame_begin, item.frame_end, text);
 
 						// セグメントを字幕準備アイテムとして書き込みます。

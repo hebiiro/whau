@@ -30,35 +30,10 @@ inline struct Transcriber
 	}
 
 	//
-	// 出力用フォルダのパスを返します。
-	//
-	std::filesystem::path get_output_folder_path()
-	{
-		auto output_folder_path = hive.audio_file_path;
-		output_folder_path.replace_extension(L".faster-whisper");
-		if (!hive.output_sub_folder_name.empty())
-			output_folder_path /= hive.output_sub_folder_name;
-		return output_folder_path;
-	}
-
-	//
-	// 出力用フォルダ内のファイルのパスを返します。
-	//
-	std::filesystem::path get_output_file_path(const std::wstring& extension)
-	{
-		auto path = hive.audio_file_path.filename();
-		path.replace_extension(extension);
-		return get_output_folder_path() / path;
-	}
-
-	//
 	// 文字起こしアプリ用のコマンドを作成して返します。
 	//
 	std::wstring get_command()
 	{
-		// 出力用フォルダのパスを取得します。
-		auto output_folder_path = get_output_folder_path();
-
 		std::wstring command;
 
 		command += std::format(LR"("{}" "{}")", hive.whisper_path.wstring(), hive.audio_file_path.wstring());
@@ -73,7 +48,7 @@ inline struct Transcriber
 		if (hive.vad_speech_pad_ms.length()) command += std::format(L" --vad_speech_pad_ms {}", hive.vad_speech_pad_ms);
 
 		command += L" " + hive.additional_command;
-		command += std::format(LR"( --beep_off --print_progress --output_format all -o "{}")", output_folder_path.wstring());
+		command += std::format(LR"( --beep_off --print_progress --output_format all -o "{}")", hive.interim_folder_path.wstring());
 
 		return command;
 	}
@@ -154,25 +129,53 @@ inline struct Transcriber
 				return FALSE;
 			}
 
-			// 出力用フォルダのパスを取得します。
-			auto output_folder_path = get_output_folder_path();
+			// 中間フォルダのパスを取得します。
+			// 相対パスの可能性があるので絶対パスに変換します。
+			auto interim_folder_path = std::filesystem::absolute(hive.interim_folder_path);
 
-			// 出力用フォルダを作成します。
-			std::filesystem::create_directories(output_folder_path);
+			// 文字起こしを実行したときに中間フォルダを選択する場合は
+			if (hive.choose_folder_on_transcribe)
+			{
+				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
+				auto default_path = interim_folder_path.wstring();
+
+				// フォルダ選択ダイアログを作成します。
+				CFolderPickerDialog dialog(default_path.c_str());
+
+				// ユーザーがフォルダを選択した場合は
+				if (IDOK == dialog.DoModal())
+				{
+					// 選択されたフォルダを中間フォルダのパスにします。
+					interim_folder_path = to_string(dialog.GetPathName());
+				}
+				// ユーザーがフォルダを選択しなかった場合は
+				else
+				{
+					// FALSEを返して処理を中断します。
+					return FALSE;
+				}
+			}
+
+			// 中間フォルダを作成します。
+			std::filesystem::create_directories(interim_folder_path);
 
 			// 文字起こしアプリ用のコマンドを作成します。
 			auto command = get_command();
 
 			{
+				// コマンドファイルのパスを作成します。
+				auto command_file_path = std::filesystem::absolute(hive.json_file_path);
+				command_file_path.replace_extension(L".command.txt");
+
 				// 出力ストリームを開きます。
-				std::ofstream command_stream(output_folder_path / L"whisper_note.txt", std::ios::binary);
+				std::ofstream command_stream(command_file_path, std::ios::binary);
 
 				// 文字起こしコマンドを出力ストリームに書き込みます。
 				command_stream << wide_to_cp(command, CP_UTF8);
 			}
 
 			// サブスレッドを作成します。
-			auto execute_thread = std::make_unique<ExecuteThread>(output_folder_path, command);
+			auto execute_thread = std::make_unique<ExecuteThread>(interim_folder_path, command);
 
 			// サブスレッドを実行します。
 			AfxBeginThread([](LPVOID param) -> UINT {

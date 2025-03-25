@@ -39,15 +39,15 @@ public:
 	// Faster-Whisper用の設定です。
 	//
 	CMFCEditBrowseCtrl audio_file_path;
+	CMFCEditBrowseCtrl interim_folder_path;
 	CComboBox task;
 	CComboBox language;
+	CComboBox japanese_mode;
 	CComboBox model;
 	CComboBox diarize;
-	CComboBox vad_method;
 	CComboBox ff;
-	CComboBox japanese_mode;
+	CComboBox vad_method;
 	CEdit vad_speech_pad_ms;
-	CEdit output_sub_folder_name;
 	CEdit additional_command;
 	CEdit actual_command;
 
@@ -80,9 +80,8 @@ public:
 	//
 	CMFCEditBrowseCtrl wav_folder_path;
 	CButton use_lip_sync;
-	CButton use_slider;
-	CComboBox slider_count;
 	CButton use_subtitle;
+	CComboBox slider_count;
 	CButton all_in_one;
 
 	//
@@ -176,21 +175,21 @@ public:
 	//
 	// UIの値を使用してコンフィグを更新します。
 	//
-	BOOL update_config()
+	BOOL ui_to_config()
 	{
 		CommandLocker command_locker(this);
 
 		from_ui(hive.audio_file_path, audio_file_path);
+		from_ui(hive.interim_folder_path, interim_folder_path);
 		from_ui(hive.task, task);
 		from_ui(hive.language, language);
+		from_ui(hive.japanese_mode, japanese_mode);
 		from_ui(hive.model, model);
 		from_ui(hive.diarize, diarize);
-		from_ui(hive.vad_method, vad_method);
 		from_ui(hive.ff, ff);
-		from_ui(hive.japanese_mode, japanese_mode);
+		from_ui(hive.vad_method, vad_method);
 		from_ui(hive.vad_speech_pad_ms, vad_speech_pad_ms);
 
-		from_ui(hive.output_sub_folder_name, output_sub_folder_name);
 		from_ui(hive.additional_command, additional_command);
 		from_ui(hive.actual_command, actual_command);
 
@@ -212,9 +211,8 @@ public:
 
 		from_ui(hive.wav_folder_path, wav_folder_path);
 		from_ui(hive.use_lip_sync, use_lip_sync);
-		from_ui(hive.use_slider, use_slider);
-		from_ui(hive.slider_count, slider_count);
 		from_ui(hive.use_subtitle, use_subtitle);
+		from_ui(hive.slider_count, slider_count);
 		from_ui(hive.all_in_one, all_in_one);
 
 		return TRUE;
@@ -223,21 +221,21 @@ public:
 	//
 	// コンフィグの値を使用してUIを更新します。
 	//
-	BOOL update_ui()
+	BOOL config_to_ui()
 	{
 		CommandLocker command_locker(this);
 
 		to_ui(hive.audio_file_path, audio_file_path);
+		to_ui(hive.interim_folder_path, interim_folder_path);
 		to_ui(hive.task, task);
 		to_ui(hive.language, language);
+		to_ui(hive.japanese_mode, japanese_mode);
 		to_ui(hive.model, model);
 		to_ui(hive.diarize, diarize);
-		to_ui(hive.vad_method, vad_method);
 		to_ui(hive.ff, ff);
-		to_ui(hive.japanese_mode, japanese_mode);
+		to_ui(hive.vad_method, vad_method);
 		to_ui(hive.vad_speech_pad_ms, vad_speech_pad_ms);
 
-		to_ui(hive.output_sub_folder_name, output_sub_folder_name);
 		to_ui(hive.additional_command, additional_command);
 		to_ui(hive.actual_command, actual_command);
 
@@ -259,9 +257,8 @@ public:
 
 		to_ui(hive.wav_folder_path, wav_folder_path);
 		to_ui(hive.use_lip_sync, use_lip_sync);
-		to_ui(hive.use_slider, use_slider);
-		to_ui(hive.slider_count, slider_count);
 		to_ui(hive.use_subtitle, use_subtitle);
+		to_ui(hive.slider_count, slider_count);
 		to_ui(hive.all_in_one, all_in_one);
 
 		return TRUE;
@@ -287,9 +284,6 @@ public:
 		auto console_window = get_console_window();
 		if (!console_window) return FALSE;
 
-		// 一旦コンソールウィンドウを最小化します。
-		console_window->ShowWindow(SW_MINIMIZE);
-
 		// コンソールウィンドウのウィンドウスタイルを変更します。
 		console_window->ModifyStyle(WS_OVERLAPPEDWINDOW, WS_CHILD);
 
@@ -310,9 +304,14 @@ public:
 			// コンソールウィンドウをプレースホルダーの位置に移動します。
 			CRect rc; console_placeholder.GetWindowRect(&rc);
 			ScreenToClient(&rc);
-			console_window->SetWindowPos(nullptr,
+			console_window->SetWindowPos({},
 				rc.left, rc.top, rc.Width(), rc.Height(),
 				SWP_NOZORDER | SWP_NOACTIVATE);
+
+			// コンソールウィンドウを再描画します。
+			console_window->RedrawWindow({}, {},
+				RDW_ERASE | RDW_INVALIDATE | RDW_FRAME |
+				RDW_INTERNALPAINT | RDW_ALLCHILDREN);
 		}
 	}
 
@@ -324,6 +323,7 @@ public:
 		CDialogEx::DoDataExchange(dx);
 
 		DDX_Control(dx, IDC_AUDIO_FILE_PATH, audio_file_path);
+		DDX_Control(dx, IDC_INTERIM_FOLDER_PATH, interim_folder_path);
 		DDX_Control(dx, IDC_TASK, task);
 		DDX_Control(dx, IDC_LANGUAGE, language);
 		DDX_Control(dx, IDC_MODEL, model);
@@ -333,7 +333,6 @@ public:
 		DDX_Control(dx, IDC_JAPANESE_MODE, japanese_mode);
 		DDX_Control(dx, IDC_VAD_SPEECH_PAD_MS, vad_speech_pad_ms);
 
-		DDX_Control(dx, IDC_OUTPUT_SUB_FOLDER_NAME, output_sub_folder_name);
 		DDX_Control(dx, IDC_ADDITIONAL_COMMAND, additional_command);
 		DDX_Control(dx, IDC_ACTUAL_COMMAND, actual_command);
 
@@ -341,7 +340,6 @@ public:
 		DDX_Control(dx, IDC_EXO_VIDEO_H, exo.video_h);
 		DDX_Control(dx, IDC_EXO_VIDEO_RATE, exo.video_rate);
 		DDX_Control(dx, IDC_EXO_VIDEO_SCALE, exo.video_scale);
-
 		DDX_Control(dx, IDC_EXO_AUDIO_RATE, exo.audio_rate);
 		DDX_Control(dx, IDC_EXO_AUDIO_CHANNEL, exo.audio_ch);
 
@@ -356,9 +354,8 @@ public:
 
 		DDX_Control(dx, IDC_WAV_FOLDER_PATH, wav_folder_path);
 		DDX_Control(dx, IDC_USE_LIP_SYNC, use_lip_sync);
-		DDX_Control(dx, IDC_USE_SLIDER, use_slider);
-		DDX_Control(dx, IDC_SLIDER_COUNT, slider_count);
 		DDX_Control(dx, IDC_USE_SUBTITLE, use_subtitle);
+		DDX_Control(dx, IDC_SLIDER_COUNT, slider_count);
 		DDX_Control(dx, IDC_ALL_IN_ONE, all_in_one);
 
 		DDX_Control(dx, IDC_CONSOLE_PLACEHOLDER, console_placeholder);
@@ -378,7 +375,7 @@ public:
 		app->read_config();
 
 		// コンフィグの値でUIを更新します。
-		update_ui();
+		config_to_ui();
 
 		// 実際のコマンドのUIを更新します。
 		to_ui(app->get_actual_command(), actual_command);
@@ -423,44 +420,7 @@ public:
 				if (code == CBN_SELCHANGE)
 				{
 					// UIの値でコンフィグを更新します。
-					update_config();
-
-					// 文字起こしコマンドをUIに適用します。
-					to_ui(app->get_actual_command(), actual_command);
-				}
-
-				break;
-			}
-		// エディットボックスのコマンドです。
-		case IDC_AUDIO_FILE_PATH:
-			{
-				if (code == EN_CHANGE)
-				{
-					// UIの値でコンフィグを更新します。
-					update_config();
-
-					// wavフォルダのパスをUIに適用します。
-					to_ui(app->get_wav_folder_path(), wav_folder_path);
-
-					// jsonファイルのパスをUIに適用します。
-					to_ui(app->get_json_file_path(), json_file_path);
-
-					// 文字起こしコマンドをUIに適用します。
-					to_ui(app->get_actual_command(), actual_command);
-				}
-
-				break;
-			}
-		// エディットボックスのコマンドです。
-		case IDC_OUTPUT_SUB_FOLDER_NAME:
-			{
-				if (code == EN_CHANGE)
-				{
-					// UIの値でコンフィグを更新します。
-					update_config();
-
-					// jsonファイルのパスをUIに適用します。
-					to_ui(app->get_json_file_path(), json_file_path);
+					ui_to_config();
 
 					// 文字起こしコマンドをUIに適用します。
 					to_ui(app->get_actual_command(), actual_command);
@@ -475,7 +435,7 @@ public:
 				if (code == EN_CHANGE)
 				{
 					// UIの値でコンフィグを更新します。
-					update_config();
+					ui_to_config();
 
 					// 文字起こしコマンドをUIに適用します。
 					to_ui(app->get_actual_command(), actual_command);
@@ -484,6 +444,53 @@ public:
 				break;
 			}
 		// エディットボックスのコマンドです。
+		case IDC_AUDIO_FILE_PATH:
+			{
+				if (code == EN_CHANGE)
+				{
+					// UIの値でコンフィグを更新します。
+					ui_to_config();
+
+					// デフォルトの中間フォルダのパスをUIに適用します。
+					to_ui(app->get_default_interim_folder_path(), interim_folder_path);
+
+					// デフォルトのjsonファイルのパスをUIに適用します。
+					to_ui(app->get_default_json_file_path(), json_file_path);
+
+					// デフォルトのwavフォルダのパスをUIに適用します。
+					to_ui(app->get_default_wav_folder_path(), wav_folder_path);
+
+					// 文字起こしコマンドをUIに適用します。
+					to_ui(app->get_actual_command(), actual_command);
+				}
+
+				break;
+			}
+		// エディットボックスのコマンドです。
+		case IDC_INTERIM_FOLDER_PATH:
+			{
+				if (code == EN_CHANGE)
+				{
+					// UIの値でコンフィグを更新します。
+					ui_to_config();
+
+					// デフォルトのjsonファイルのパスをUIに適用します。
+					to_ui(app->get_default_json_file_path(), json_file_path);
+
+					// 文字起こしコマンドをUIに適用します。
+					to_ui(app->get_actual_command(), actual_command);
+				}
+
+				break;
+			}
+#if 0
+		// エディットボックスのコマンドです。
+		case IDC_EXO_VIDEO_W:
+		case IDC_EXO_VIDEO_H:
+		case IDC_EXO_VIDEO_RATE:
+		case IDC_EXO_VIDEO_SCALE:
+		case IDC_EXO_AUDIO_RATE:
+		case IDC_EXO_AUDIO_CHANNEL:
 		case IDC_WAV_FOLDER_PATH:
 		case IDC_TOKEN_LAYER_OFFSET:
 		case IDC_SEGMENT_LAYER_OFFSET:
@@ -493,7 +500,18 @@ public:
 				if (code == EN_CHANGE)
 				{
 					// UIの値でコンフィグを更新します。
-					update_config();
+					ui_to_config();
+				}
+
+				break;
+			}
+		// コンボボックスのコマンドです。
+		case IDC_SLIDER_COUNT:
+			{
+				if (code == CBN_SELCHANGE)
+				{
+					// UIの値でコンフィグを更新します。
+					ui_to_config();
 				}
 
 				break;
@@ -503,20 +521,131 @@ public:
 		case IDC_CREATE_TOKEN_ITEM:
 		case IDC_CREATE_PSDTOOLKIT_ITEM:
 		case IDC_USE_LIP_SYNC:
-		case IDC_USE_SLIDER:
 		case IDC_USE_SUBTITLE:
 		case IDC_ALL_IN_ONE:
 			{
 				// UIの値でコンフィグを更新します。
-				update_config();
+				ui_to_config();
+
+				break;
+			}
+#endif
+		// ボタンのコマンドです。
+		case IDC_AUDIO_FILE_PATH_REF:
+			{
+				// UIの値でコンフィグを更新します。
+				ui_to_config();
+
+				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
+				auto default_path = std::filesystem::absolute(hive.audio_file_path).wstring();
+
+				// ファイル選択ダイアログを作成します。
+				CFileDialog dialog(
+					TRUE, // 読み込みの場合はTRUEです。
+					nullptr, // デフォルト拡張子です。
+					default_path.c_str(), // 初期ファイル名です。
+					OFN_FILEMUSTEXIST, // 既存のファイルだけ選択できるようにします。
+					_T("audio files (wav, mp3, flac, aac, ogg, oga, m4a, mp4, avi, wma, wmv|")
+					_T("*.wav;*.mp3;*.flac;*.aac;*.ogg;*.oga;*.m4a;*.mp4;*.avi;*.wma;*.wmv|") // 音声ファイル用のフィルタです。
+					_T("all files (*.*)|*.*||"), // すべてのファイル用のフィルタです。
+					this); // オーナーウィンドウです。
+
+				// ユーザーがファイルを選択した場合は
+				if (IDOK == dialog.DoModal())
+				{
+					// 選択されたファイルを音声ファイルのパスにします。
+					hive.audio_file_path = to_string(dialog.GetPathName());
+
+					// 音声ファイルのパスをUIに適用します。
+					to_ui(hive.audio_file_path, audio_file_path);
+				}
 
 				break;
 			}
 		// ボタンのコマンドです。
-		case IDC_EXECUTE_WHISPER:
+		case IDC_INTERIM_FOLDER_PATH_REF:
 			{
 				// UIの値でコンフィグを更新します。
-				update_config();
+				ui_to_config();
+
+				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
+				auto default_path = std::filesystem::absolute(hive.interim_folder_path).wstring();
+
+				// フォルダ選択ダイアログを作成します。
+				CFolderPickerDialog dialog(default_path.c_str(), 0, this);
+
+				// ユーザーがフォルダを選択した場合は
+				if (IDOK == dialog.DoModal())
+				{
+					// 選択されたフォルダを中間フォルダのパスにします。
+					hive.interim_folder_path = to_string(dialog.GetPathName());
+
+					// 中間フォルダのパスをUIに適用します。
+					to_ui(hive.interim_folder_path, interim_folder_path);
+				}
+
+				break;
+			}
+		// ボタンのコマンドです。
+		case IDC_JSON_FILE_PATH_REF:
+			{
+				// UIの値でコンフィグを更新します。
+				ui_to_config();
+
+				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
+				auto default_path = std::filesystem::absolute(hive.json_file_path).wstring();
+
+				// ファイル選択ダイアログを作成します。
+				CFileDialog dialog(
+					TRUE, // 読み込みの場合はTRUEです。
+					nullptr, // デフォルト拡張子です。
+					default_path.c_str(), // 初期ファイル名です。
+					OFN_FILEMUSTEXIST, // 既存のファイルだけ選択できるようにします。
+					_T("json files (*.json|*.json|") // jsonファイル用のフィルタです。
+					_T("all files (*.*)|*.*||"), // すべてのファイル用のフィルタです。
+					this); // オーナーウィンドウです。
+
+				// ユーザーがファイルを選択した場合は
+				if (IDOK == dialog.DoModal())
+				{
+					// 選択されたファイルをjsonファイルのパスにします。
+					hive.json_file_path = to_string(dialog.GetPathName());
+
+					// jsonファイルのパスをUIに適用します。
+					to_ui(hive.json_file_path, json_file_path);
+				}
+
+				break;
+			}
+		// ボタンのコマンドです。
+		case IDC_WAV_FOLDER_PATH_REF:
+			{
+				// UIの値でコンフィグを更新します。
+				ui_to_config();
+
+				// そのまま渡すとデストラクトしてしまうのでコピーを作成します。
+				auto default_path = std::filesystem::absolute(hive.wav_folder_path).wstring();
+
+				// フォルダ選択ダイアログを作成します。
+				CFolderPickerDialog dialog(default_path.c_str(), 0, this);
+
+				// ユーザーがフォルダを選択した場合は
+				if (IDOK == dialog.DoModal())
+				{
+					// 選択されたフォルダをwavフォルダのパスにします。
+					hive.wav_folder_path = to_string(dialog.GetPathName());
+
+					// wavフォルダのパスをUIに適用します。
+					to_ui(hive.wav_folder_path, wav_folder_path);
+				}
+
+				break;
+			}
+		// ボタンのコマンドです。
+		case IDC_TRANSCRIBE:
+			{
+				// UIの値でコンフィグを更新します。
+				ui_to_config();
 
 				// 文字起こしを実行します。
 				return app->transcribe();
@@ -525,7 +654,7 @@ public:
 		case IDC_OUTPUT_EXO_FILE:
 			{
 				// UIの値でコンフィグを更新します。
-				update_config();
+				ui_to_config();
 
 				// AviUtl用のexoファイルを出力します。
 				return app->output_exo_file();
@@ -539,7 +668,7 @@ public:
 		case IDCANCEL:
 			{
 				// UIの値でコンフィグを更新します。
-				update_config();
+				ui_to_config();
 
 				// コンフィグを設定ファイルに書き込みます。
 				app->write_config();
@@ -554,49 +683,68 @@ public:
 	//
 	// WM_SIZEを処理します。
 	//
-	void OnSize(UINT type, int cx, int cy)
+	LRESULT on_size(UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		update_layout();
-	}
+		auto lr = __super::WindowProc(message, wParam, lParam);
 
-	//
-	// WM_SETFOCUSを処理します。
-	//
-	void OnSetFocus(CWnd* old_wnd)
-	{
-		// コンソールウィンドウを取得できる場合は
-		if (auto console_window = get_console_window())
-		{
-			// コンソールウィンドウにフォーカスを与えます。
-			console_window->SetFocus();
-		}
+		update_layout();
+
+		return lr;
 	}
 
 	//
 	// WM_CONTEXTMENUを処理します。
 	//
-	void OnContextMenu(CWnd* wnd, CPoint point)
+	LRESULT on_context_menu(UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		switch (wnd->GetDlgCtrlID())
+		auto control = CWnd::FromHandle((HWND)wParam);
+		auto point = CPoint(lParam);
+
+		switch (control->GetDlgCtrlID())
 		{
-		case IDC_OUTPUT_EXO_FILE:
+		case IDC_TRANSCRIBE:
 			{
 				constexpr struct {
-					const int c_choose_file_on_output = 1;
+					const int c_choose_folder_on_transcribe = 1;
 				} c_command_id;
 
 				CMenu menu; menu.CreatePopupMenu();
-				menu.AppendMenu(MF_STRING, c_command_id.c_choose_file_on_output, _T("出力時にファイルを選択"));
-				if (hive.choose_file_on_output)
-					menu.CheckMenuItem(c_command_id.c_choose_file_on_output, MF_CHECKED);
+				menu.AppendMenu(MF_STRING, c_command_id.c_choose_folder_on_transcribe, _T("実行時にフォルダを選択"));
+				if (hive.choose_folder_on_transcribe)
+					menu.CheckMenuItem(c_command_id.c_choose_folder_on_transcribe, MF_CHECKED);
 
 				auto id = menu.TrackPopupMenu(TPM_NONOTIFY | TPM_RETURNCMD, point.x, point.y, this);
 
 				switch (id)
 				{
-				case c_command_id.c_choose_file_on_output:
+				case c_command_id.c_choose_folder_on_transcribe:
 					{
-						hive.choose_file_on_output = !hive.choose_file_on_output;
+						hive.choose_folder_on_transcribe = !hive.choose_folder_on_transcribe;
+
+						break;
+					}
+				}
+
+				break;
+			}
+		case IDC_OUTPUT_EXO_FILE:
+			{
+				constexpr struct {
+					const int c_choose_file_on_output_exo_file = 1;
+				} c_command_id;
+
+				CMenu menu; menu.CreatePopupMenu();
+				menu.AppendMenu(MF_STRING, c_command_id.c_choose_file_on_output_exo_file, _T("出力時にファイルを選択"));
+				if (hive.choose_file_on_output_exo_file)
+					menu.CheckMenuItem(c_command_id.c_choose_file_on_output_exo_file, MF_CHECKED);
+
+				auto id = menu.TrackPopupMenu(TPM_NONOTIFY | TPM_RETURNCMD, point.x, point.y, this);
+
+				switch (id)
+				{
+				case c_command_id.c_choose_file_on_output_exo_file:
+					{
+						hive.choose_file_on_output_exo_file = !hive.choose_file_on_output_exo_file;
 
 						break;
 					}
@@ -605,13 +753,39 @@ public:
 				break;
 			}
 		}
+
+		return __super::WindowProc(message, wParam, lParam);
 	}
 
-	DECLARE_MESSAGE_MAP()
-} main_dialog;
+	//
+	// WM_DROPFILESを処理します。
+	//
+	LRESULT on_drop_files(UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		// ドラッグアンドドロップで渡されたドロップファイルのパスを取得します。
+		auto drop = (HDROP)wParam;
+		TCHAR drop_file_path[MAX_PATH] = {};
+		::DragQueryFile(drop, 0, drop_file_path, std::size(drop_file_path));
+		::DragFinish(drop);
 
-BEGIN_MESSAGE_MAP(MainDialog, CDialogEx)
-	ON_WM_SIZE()
-	ON_WM_SETFOCUS()
-	ON_WM_CONTEXTMENU()
-END_MESSAGE_MAP()
+		// ドロップファイルのパスを音声ファイルのパスに設定します。
+		audio_file_path.SetWindowText(drop_file_path);
+
+		return __super::WindowProc(message, wParam, lParam);
+	}
+
+	//
+	// ウィンドウメッセージを処理します。
+	//
+	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam) override
+	{
+		switch (message)
+		{
+		case WM_SIZE: return on_size(message, wParam, lParam);
+		case WM_CONTEXTMENU: return on_context_menu(message, wParam, lParam);
+		case WM_DROPFILES: return on_drop_files(message, wParam, lParam);
+		}
+
+		return __super::WindowProc(message, wParam, lParam);
+	}
+} main_dialog;

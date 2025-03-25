@@ -6,22 +6,24 @@
 inline struct Hive
 {
 	inline static constexpr struct {
-		inline static constexpr int c_4 = 0;
-		inline static constexpr int c_8 = 1;
-		inline static constexpr int c_12 = 2;
-		inline static constexpr int c_16 = 3;
-		inline static constexpr int c_20 = 4;
-		inline static constexpr int c_24 = 5;
-		inline static constexpr int c_28 = 6;
-		inline static constexpr int c_32 = 7;
-		inline static constexpr int c_36 = 8;
-		inline static constexpr int c_40 = 9;
+		inline static constexpr int c_0 = 0;
+		inline static constexpr int c_4 = 1;
+		inline static constexpr int c_8 = 2;
+		inline static constexpr int c_12 = 3;
+		inline static constexpr int c_16 = 4;
+		inline static constexpr int c_20 = 5;
+		inline static constexpr int c_24 = 6;
+		inline static constexpr int c_28 = 7;
+		inline static constexpr int c_32 = 8;
+		inline static constexpr int c_36 = 9;
+		inline static constexpr int c_40 = 10;
 	} c_slider_count;
 
 	//
 	// Faster-Whisper用の設定です。
 	//
-	std::filesystem::path audio_file_path = L"sample.wav";
+	std::filesystem::path audio_file_path = L"assets\\samples\\電車.wav";
+	std::filesystem::path interim_folder_path;
 	std::wstring task = L"指定なし";
 	std::wstring language = L"ja";
 	std::wstring model = L"large-v2";
@@ -30,7 +32,6 @@ inline struct Hive
 	std::wstring vad_speech_pad_ms;
 	std::wstring ff = L"指定なし";
 	std::wstring japanese_mode = L"blend";
-	std::wstring output_sub_folder_name;
 	std::wstring additional_command;
 	std::wstring actual_command;
 
@@ -63,15 +64,19 @@ inline struct Hive
 	//
 	std::filesystem::path wav_folder_path;
 	BOOL use_lip_sync = TRUE;
-	BOOL use_slider = FALSE;
-	int slider_count = c_slider_count.c_8;
 	BOOL use_subtitle = TRUE;
+	int slider_count = c_slider_count.c_0;
 	BOOL all_in_one = TRUE;
 
 	//
-	// その他の設定です。
+	// TRUEの場合は文字起こしを実行したときにフォルダを選択します。
 	//
-	BOOL choose_file_on_output = FALSE;
+	BOOL choose_folder_on_transcribe = FALSE;
+
+	//
+	// TRUEの場合はexoファイルを出力するときにファイルを選択します。
+	//
+	BOOL choose_file_on_output_exo_file = FALSE;
 
 	//
 	// フォルダ構成の原点となるパスです。
