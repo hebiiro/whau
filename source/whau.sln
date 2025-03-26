@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{DDB4EF12-C
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		common.props = common.props
 		CREDITS.md = CREDITS.md
 		LICENSE = LICENSE
 		README.md = README.md

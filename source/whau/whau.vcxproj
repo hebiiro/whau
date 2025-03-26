@@ -114,7 +114,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\..\test\whau\$(TargetFileName)"
+      <Command>copy /Y "$(TargetPath)" "$(UserProfile)\source\test\whau\$(TargetFileName)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -142,7 +142,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\..\test\whau\$(TargetFileName)"
+      <Command>copy /Y "$(TargetPath)" "$(UserProfile)\source\test\whau\$(TargetFileName)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -174,7 +174,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\..\test\whau\$(TargetFileName)"
+      <Command>copy /Y "$(TargetPath)" "$(UserProfile)\source\test\whau\$(TargetFileName)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -206,7 +206,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy /Y "$(TargetPath)" "$(SolutionDir)..\..\test\whau\$(TargetFileName)"
+      <Command>copy /Y "$(TargetPath)" "$(UserProfile)\source\test\whau\$(TargetFileName)"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
