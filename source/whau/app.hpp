@@ -159,7 +159,7 @@ public:
 	virtual std::filesystem::path get_default_json_file_path() override
 	{
 		auto json_file_path = hive.interim_folder_path;
-		json_file_path /= hive.audio_file_path.stem();
+		json_file_path /= hive.audio_file_path.filename();
 		json_file_path.replace_extension(L".json");
 		return json_file_path;
 	}
