@@ -943,6 +943,39 @@ public:
 				// PSDToolKit用アイテムを作成する場合は
 				if (hive.create_psdtoolkit_item)
 				{
+					//
+					// 文字列をエスケープして返します。
+					//
+					const auto escape = [](const std::wstring& str)
+					{
+						const std::unordered_map<wchar_t, wchar_t> escape_map =
+						{
+							{ L'\\', L'￥' },
+							{ L'/', L'／' },
+//							{ L'(', L'（' },
+//							{ L')', L'）' },
+//							{ L'{', L'｛' },
+//							{ L'}', L'｝' },
+//							{ L'[', L'［' },
+//							{ L']', L'］' },
+							{ L'^', L'＾' },
+							{ L'$', L'＄' },
+//							{ L'.', L'．' },
+							{ L'*', L'＊' },
+//							{ L'+', L'＋' },
+							{ L'?', L'？' },
+							{ L'|', L'｜' },
+						};
+						std::wstring ret_value;
+						for (auto ch : str) {
+							if (auto it = escape_map.find(ch); it != escape_map.end())
+								ret_value += it->second;
+							else
+								ret_value += ch;
+						}
+						return ret_value;
+					};
+
 					// wavファイルのステムの最大長です。
 					constexpr auto c_max_stem_length = 16;
 
@@ -953,6 +986,7 @@ public:
 						audio_file_stem.resize(c_max_stem_length);
 						audio_file_stem.back() = L'…';
 					}
+					audio_file_stem = escape(audio_file_stem);
 
 					// wavファイルのパスを作成します。
 					auto wav_file_path = wav_folder_path / std::format(L"{:03d}_{}.wav", i + 1, audio_file_stem);
