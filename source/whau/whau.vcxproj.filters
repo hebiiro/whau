@@ -27,6 +27,8 @@
     <ClInclude Include="hive.hpp" />
     <ClInclude Include="execute_thread.hpp" />
     <ClInclude Include="install_thread.hpp" />
+    <ClInclude Include="transcriber_config_dialog.hpp" />
+    <ClInclude Include="dialog_base.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />

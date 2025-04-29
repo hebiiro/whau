@@ -6,6 +6,8 @@
 #include "install_thread.hpp"
 #include "execute_thread.hpp"
 #include "transcriber.hpp"
+#include "dialog_base.hpp"
+#include "transcriber_config_dialog.hpp"
 #include "main_dialog.hpp"
 #include "app.hpp"
 

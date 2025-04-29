@@ -213,6 +213,7 @@
   <ItemGroup>
     <ClInclude Include="app.hpp" />
     <ClInclude Include="app_interface.hpp" />
+    <ClInclude Include="dialog_base.hpp" />
     <ClInclude Include="install_thread.hpp" />
     <ClInclude Include="execute_thread.hpp" />
     <ClInclude Include="hive.hpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="transcriber.hpp" />
+    <ClInclude Include="transcriber_config_dialog.hpp" />
     <ClInclude Include="utils.hpp" />
   </ItemGroup>
   <ItemGroup>

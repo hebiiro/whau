@@ -14,8 +14,14 @@ inline struct Transcriber
 		hive.origin = get_module_file_name(nullptr).parent_path().lexically_normal();
 
 		// ダウンロード元のURLです。
-		hive.download_url =  L"https://github.com/Purfview/whisper-standalone-win/releases/download/Faster-Whisper-XXL/Faster-Whisper-XXL_r245.2_windows.7z";
+		hive.download_url =  L"https://github.com/Purfview/whisper-standalone-win/releases/download/Faster-Whisper-XXL/Faster-Whisper-XXL_r245.4_windows.7z";
+	}
 
+	//
+	// 各種ファイルパスを更新します。
+	//
+	BOOL update_path()
+	{
 		// ダウンロード先のファイルパスです。
 		hive.download_path = hive.download_url.filename();
 
@@ -27,6 +33,8 @@ inline struct Transcriber
 
 		// ffmpegのファイルパスです。
 		hive.ffmpeg_path = faster_whisper_folder / L"ffmpeg.exe";
+
+		return TRUE;
 	}
 
 	//

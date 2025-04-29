@@ -24,9 +24,9 @@ public:
 
 		const auto read_string = [&](LPCWSTR section_name, LPCWSTR key_name, std::wstring& value) {
 			value.resize(MAX_PATH);
-			::GetPrivateProfileStringW(section_name, key_name,
+			auto length = ::GetPrivateProfileStringW(section_name, key_name,
 				value.c_str(), value.data(), (DWORD)value.size(), path.c_str());
-			value.resize(::lstrlenW(value.data()));
+			value.resize(length);
 		};
 
 		const auto read_int = [&](LPCWSTR section_name, LPCWSTR key_name, int& value) {
@@ -43,6 +43,7 @@ public:
 		hive.json_file_path = get_default_json_file_path();
 		hive.wav_folder_path = get_default_wav_folder_path();
 
+		read_path(L"Faster-Whisper", L"download_url", hive.download_url);
 		read_path(L"Faster-Whisper", L"audio_file_path", hive.audio_file_path);
 		read_path(L"Faster-Whisper", L"interim_folder_path", hive.interim_folder_path);
 		read_string(L"Faster-Whisper", L"task", hive.task);
@@ -80,6 +81,10 @@ public:
 		read_int(L"etc", L"choose_folder_on_transcribe", hive.choose_folder_on_transcribe);
 		read_int(L"etc", L"choose_file_on_output_exo_file", hive.choose_file_on_output_exo_file);
 
+		// ダウンロードURLが変更された可能性があるので
+		// 各種ファイルパスを更新します。
+		transcriber.update_path();
+
 		return TRUE;
 	}
 
@@ -102,6 +107,7 @@ public:
 			write_string(section_name, key_name, value.wstring());
 		};
 
+		write_path(L"Faster-Whisper", L"download_url", hive.download_url);
 		write_path(L"Faster-Whisper", L"audio_file_path", hive.audio_file_path);
 		write_path(L"Faster-Whisper", L"interim_folder_path", hive.interim_folder_path);
 		write_string(L"Faster-Whisper", L"task", hive.task);
@@ -1030,9 +1036,6 @@ public:
 			// MFC コントロールでテーマを有効にするために、"Windows ネイティブ" のビジュアル マネージャーをアクティブ化
 			CMFCVisualManager::SetDefaultManager(
 				RUNTIME_CLASS(CMFCVisualManagerWindows));
-
-			// コンフィグを読み込みます。
-			read_config();
 
 			// メインダイアログをMFCのメインウィンドウに設定します。
 			m_pMainWnd = &main_dialog;

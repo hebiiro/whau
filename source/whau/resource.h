@@ -3,6 +3,8 @@
 // whau.rc で使用
 //
 #define IDD_MAIN_DIALOG                 100
+#define IDD_CHOOSE_DOWNLOAD_URL         101
+#define IDD_TRANSCRIBER_CONFIG          101
 #define IDR_MAINFRAME                   128
 #define IDC_FASTER_WHISPER_STAT         1000
 #define IDC_TRANSCRIBE                  1001
@@ -70,6 +72,8 @@
 #define IDC_EXO_AUDIO_CHANNEL_UNIT_STAT 1314
 #define IDC_ACTUAL_COMMAND              1400
 #define IDC_CONSOLE_PLACEHOLDER         1401
+#define IDC_DOWNLOAD_URL_STAT           2002
+#define IDC_DOWNLOAD_URL                2003
 
 // Next default values for new objects
 // 
@@ -77,7 +81,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         2002
+#define _APS_NEXT_CONTROL_VALUE         2006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
