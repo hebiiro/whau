@@ -48,6 +48,7 @@ public:
 	CButton create_psdtoolkit_item;
 	CEdit token_layer_offset;
 	CEdit segment_layer_offset;
+	CEdit tail_layer_offset;
 	CEdit start_margin;
 	CEdit end_margin;
 
@@ -59,6 +60,11 @@ public:
 	CButton use_subtitle;
 	CComboBox slider_count;
 	CButton all_in_one;
+
+	//
+	// その他の設定です。
+	//
+	CButton use_speaker;
 
 	//
 	// コンソールのプレースホルダーです。
@@ -105,6 +111,7 @@ public:
 		from_ui(hive.create_psdtoolkit_item, create_psdtoolkit_item);
 		from_ui(hive.token_layer_offset, token_layer_offset);
 		from_ui(hive.segment_layer_offset, segment_layer_offset);
+		from_ui(hive.tail_layer_offset, tail_layer_offset);
 		from_ui(hive.start_margin, start_margin);
 		from_ui(hive.end_margin, end_margin);
 
@@ -113,6 +120,8 @@ public:
 		from_ui(hive.use_subtitle, use_subtitle);
 		from_ui(hive.slider_count, slider_count);
 		from_ui(hive.all_in_one, all_in_one);
+
+		from_ui(hive.use_speaker, use_speaker);
 
 		return TRUE;
 	}
@@ -149,6 +158,7 @@ public:
 		to_ui(hive.create_psdtoolkit_item, create_psdtoolkit_item);
 		to_ui(hive.token_layer_offset, token_layer_offset);
 		to_ui(hive.segment_layer_offset, segment_layer_offset);
+		to_ui(hive.tail_layer_offset, tail_layer_offset);
 		to_ui(hive.start_margin, start_margin);
 		to_ui(hive.end_margin, end_margin);
 
@@ -157,6 +167,8 @@ public:
 		to_ui(hive.use_subtitle, use_subtitle);
 		to_ui(hive.slider_count, slider_count);
 		to_ui(hive.all_in_one, all_in_one);
+
+		to_ui(hive.use_speaker, use_speaker);
 
 		return TRUE;
 	}
@@ -254,6 +266,7 @@ public:
 		case IDC_WAV_FOLDER_PATH:
 		case IDC_TOKEN_LAYER_OFFSET:
 		case IDC_SEGMENT_LAYER_OFFSET:
+		case IDC_TAIL_LAYER_OFFSET:
 		case IDC_START_MARGIN:
 		case IDC_END_MARGIN:
 			{
@@ -283,6 +296,7 @@ public:
 		case IDC_USE_LIP_SYNC:
 		case IDC_USE_SUBTITLE:
 		case IDC_ALL_IN_ONE:
+		case IDC_USE_SPEAKER:
 			{
 				// UIの値でコンフィグを更新します。
 				ui_to_config();
@@ -525,6 +539,7 @@ public:
 		DDX_Control(dx, IDC_CREATE_PSDTOOLKIT_ITEM, create_psdtoolkit_item);
 		DDX_Control(dx, IDC_TOKEN_LAYER_OFFSET, token_layer_offset);
 		DDX_Control(dx, IDC_SEGMENT_LAYER_OFFSET, segment_layer_offset);
+		DDX_Control(dx, IDC_TAIL_LAYER_OFFSET, tail_layer_offset);
 		DDX_Control(dx, IDC_START_MARGIN, start_margin);
 		DDX_Control(dx, IDC_END_MARGIN, end_margin);
 
@@ -533,6 +548,8 @@ public:
 		DDX_Control(dx, IDC_USE_SUBTITLE, use_subtitle);
 		DDX_Control(dx, IDC_SLIDER_COUNT, slider_count);
 		DDX_Control(dx, IDC_ALL_IN_ONE, all_in_one);
+
+		DDX_Control(dx, IDC_USE_SPEAKER, use_speaker);
 
 		DDX_Control(dx, IDC_CONSOLE_PLACEHOLDER, console_placeholder);
 	}

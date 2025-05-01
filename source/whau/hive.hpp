@@ -32,7 +32,7 @@ inline struct Hive
 	std::wstring vad_speech_pad_ms;
 	std::wstring ff = L"指定なし";
 	std::wstring japanese_mode = L"blend";
-	std::wstring additional_command;
+	std::wstring additional_command = L"--compute_type default";
 	std::wstring actual_command;
 
 	//
@@ -56,6 +56,7 @@ inline struct Hive
 	BOOL create_psdtoolkit_item = TRUE;
 	int token_layer_offset = 1;
 	int segment_layer_offset = 1;
+	int tail_layer_offset = 1;
 	std::wstring start_margin = L"0.0";
 	std::wstring end_margin = L"0.0";
 
@@ -77,6 +78,11 @@ inline struct Hive
 	// TRUEの場合はexoファイルを出力するときにファイルを選択します。
 	//
 	BOOL choose_file_on_output_exo_file = FALSE;
+
+	//
+	// TRUEの場合は話者番号を使用します。
+	//
+	BOOL use_speaker = TRUE;
 
 	//
 	// フォルダ構成の原点となるパスです。

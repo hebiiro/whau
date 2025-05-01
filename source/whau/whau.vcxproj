@@ -213,7 +213,9 @@
   <ItemGroup>
     <ClInclude Include="app.hpp" />
     <ClInclude Include="app_interface.hpp" />
+    <ClInclude Include="config_io.hpp" />
     <ClInclude Include="dialog_base.hpp" />
+    <ClInclude Include="exo_creator.hpp" />
     <ClInclude Include="install_thread.hpp" />
     <ClInclude Include="execute_thread.hpp" />
     <ClInclude Include="hive.hpp" />

@@ -3,7 +3,6 @@
 // whau.rc で使用
 //
 #define IDD_MAIN_DIALOG                 100
-#define IDD_CHOOSE_DOWNLOAD_URL         101
 #define IDD_TRANSCRIBER_CONFIG          101
 #define IDR_MAINFRAME                   128
 #define IDC_FASTER_WHISPER_STAT         1000
@@ -46,6 +45,12 @@
 #define IDC_MARGIN_STAT                 1111
 #define IDC_START_MARGIN                1112
 #define IDC_END_MARGIN                  1113
+#define IDC_TAIL_LAYER_OFFSET           1114
+#define IDC_TOKEN_LAYER_OFFSET_STAT     1115
+#define IDC_SEGMENT_LAYER_OFFSET_STAT   1116
+#define IDC_TAIL_LAYER_OFFSET_STAT      1117
+#define IDC_START_MARGIN_STAT           1118
+#define IDC_END_MARGIN_STAT             1119
 #define IDC_PSDTOOLKIT_STAT             1200
 #define IDC_WAV_FOLDER_PATH_STAT        1201
 #define IDC_WAV_FOLDER_PATH             1202
@@ -55,6 +60,8 @@
 #define IDC_SLIDER_CCOUNT_STAT          1206
 #define IDC_SLIDER_COUNT                1207
 #define IDC_ALL_IN_ONE                  1208
+#define IDC_ALL_IN_ONE2                 1209
+#define IDC_USE_SPEAKER                 1209
 #define IDC_EXO_STAT                    1300
 #define IDC_EXO_VIDEO_STAT              1301
 #define IDC_EXO_VIDEO_SIZE_STAT         1302

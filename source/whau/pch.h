@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <string>
+#include <regex>
 #include <format>
 #include <filesystem>
 #include <vector>
